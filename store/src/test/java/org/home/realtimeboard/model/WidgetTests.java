@@ -5,6 +5,9 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 
+/**
+ * Тесты для {@link Widget}
+ */
 public class WidgetTests extends AbstractTestNGSpringContextTests {
     @Test
     public void testPushOut() {

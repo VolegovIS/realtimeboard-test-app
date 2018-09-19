@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 
 import static org.testng.Assert.*;
 
+/**
+ * Общий класс тестов для {@link WidgetStore}
+ */
 @Slf4j
 public abstract class AbstractWidgetStoreTests {
     public abstract WidgetStore getWidgetStore();

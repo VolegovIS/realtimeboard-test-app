@@ -118,10 +118,13 @@ public class AdaptedWidgetStore implements WidgetStore {
 
     @Override
     public void delete(String id) {
-        Widget widget = findOne(id);
-        boolean removed = Objects.nonNull(widget) && storeAdapter.remove(widget);
-        if (!removed) {
-            throw new ResourceNotFoundException();
+        // Глобальная блокировка нужна для корректного выпихивания списка вышележащих виджетов
+        synchronized (lock) {
+            Widget widget = findOne(id);
+            boolean removed = Objects.nonNull(widget) && storeAdapter.remove(widget);
+            if (!removed) {
+                throw new ResourceNotFoundException();
+            }
         }
     }
 

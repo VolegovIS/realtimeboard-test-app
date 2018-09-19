@@ -5,6 +5,9 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+/**
+ * Тесты для {@link Filter}
+ */
 public class FilterTests extends AbstractTestNGSpringContextTests {
     @DataProvider(name = "isValidTestData")
     public Object[][] getIsValidTestDate() {
@@ -99,5 +102,10 @@ public class FilterTests extends AbstractTestNGSpringContextTests {
     @Test(dataProvider = "predicateTestData")
     public void predicateTest(Filter filter, Widget widget, boolean result) {
         Assert.assertEquals(filter.toPredicate().test(widget), result);
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testEmptyPredicate() {
+        Filter.builder().build().toPredicate();
     }
 }

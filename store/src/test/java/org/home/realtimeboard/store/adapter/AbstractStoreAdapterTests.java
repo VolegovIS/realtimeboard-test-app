@@ -3,14 +3,19 @@ package org.home.realtimeboard.store.adapter;
 import org.home.realtimeboard.model.Widget;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.testng.Assert.*;
 
+/**
+ * Общий класс тестов для {@link InnerStoreAdapter}
+ */
 public abstract class AbstractStoreAdapterTests extends AbstractTestNGSpringContextTests {
     public abstract InnerStoreAdapter getStoreAdapter();
     // Генератор уникальных zIndex'ов, необходим для корректной работы хранилищ с сортировкой
@@ -62,6 +67,45 @@ public abstract class AbstractStoreAdapterTests extends AbstractTestNGSpringCont
         getStoreAdapter().add(getWidget());
         assertNotNull(getStoreAdapter().stream());
         assertEquals(getStoreAdapter().stream().count(), 3);
+    }
+
+    @DataProvider(name = "testPushOutData")
+    public Object[][] getTestPushOutData() {
+        Widget fixedWidget = getWidget(5);
+
+        return new Object[][] {
+                {
+                        Arrays.asList(getWidget(1), getWidget(5), getWidget(10)),
+                        3,
+                        UUID.randomUUID().toString(),
+                        Arrays.asList(1, 5, 10)
+                },
+                {
+                        Arrays.asList(getWidget(1), getWidget(5), getWidget(10)),
+                        5,
+                        UUID.randomUUID().toString(),
+                        Arrays.asList(1, 6, 11)
+                },
+                {
+                        Arrays.asList(getWidget(1), fixedWidget, getWidget(10)),
+                        fixedWidget.getZIndex(),
+                        fixedWidget.getId(),
+                        getStoreAdapter().isSortedByZIndex() ? Arrays.asList(1, 6, 11) : Arrays.asList(1, 5, 10)
+                }
+        };
+    }
+
+    @Test(dataProvider = "testPushOutData")
+    public void testPushOut(List<Widget> widgets, Integer pusherZIndex, String pusherId,
+                            List<Integer> expectedIndexes) {
+
+        widgets.forEach(w -> getStoreAdapter().add(w));
+        getStoreAdapter().pushOut(pusherZIndex, pusherId);
+        List<Integer> zIndexes = getStoreAdapter().stream()
+                .map(Widget::getZIndex)
+                .sorted()
+                .collect(Collectors.toList());
+        assertEquals(zIndexes, expectedIndexes);
     }
 
     @Test

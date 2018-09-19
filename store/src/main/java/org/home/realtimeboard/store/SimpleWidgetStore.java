@@ -107,9 +107,12 @@ public class SimpleWidgetStore implements WidgetStore {
 
     @Override
     public void delete(String id) {
-        boolean removed = store.removeIf(w -> Objects.equals(w.getId(), id));
-        if (!removed) {
-            throw new ResourceNotFoundException();
+        // Глобальная блокировка нужна для корректного выпихивания списка вышележащих виджетов
+        synchronized (lock) {
+            boolean removed = store.removeIf(w -> Objects.equals(w.getId(), id));
+            if (!removed) {
+                throw new ResourceNotFoundException();
+            }
         }
     }
 
